@@ -16,7 +16,7 @@ name = "email_newsletter"
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 log = "0.4.20"
-serde = { version = "1", features = ["derive"]}
+serde = { version = "1", features = ["derive"] }
 
 
 

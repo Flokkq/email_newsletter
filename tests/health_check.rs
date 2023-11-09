@@ -1,5 +1,5 @@
-use std::net::TcpListener;
 use log::error;
+use std::net::TcpListener;
 
 #[tokio::test]
 async fn health_check_works() {
@@ -13,7 +13,7 @@ async fn health_check_works() {
         .expect("Failed to execute request.");
 
     assert!(response.status().is_success());
-    assert_eq!(Some(0), response.content_length());
+    assert_eq!(Some(0), response.content_length()); // assert_equals(0, response.content_length())
 }
 
 fn spawn_app() -> String {
@@ -50,7 +50,7 @@ async fn subscribe_return_a_400_when_data_is_missing() {
     let test_cases = vec![
         ("name=le%20guin", "missing the email"),
         ("email=ursula_le_guin%40gmail.com", "missing the name"),
-        ("", "missing both name and email")
+        ("", "missing both name and email"),
     ];
 
     for (invalid_body, error_message) in test_cases {
