@@ -1,5 +1,6 @@
 use log::error;
 use std::net::TcpListener;
+use email_newsletter::startup::run;
 
 #[tokio::test]
 async fn health_check_works() {
@@ -13,14 +14,14 @@ async fn health_check_works() {
         .expect("Failed to execute request.");
 
     assert!(response.status().is_success());
-    assert_eq!(Some(0), response.content_length()); // assert_equals(0, response.content_length())
+    assert_eq!(Some(0), response.content_length());
 }
 
 fn spawn_app() -> String {
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
 
     let port = listener.local_addr().unwrap().port();
-    let server = email_newsletter::run(listener).expect("Failed to bind address");
+    let server = run(listener).expect("Failed to bind address");
     let _ = tokio::spawn(server);
 
     format!("http://127.0.0.1:{}", port)

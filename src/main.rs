@@ -1,4 +1,4 @@
-use email_newsletter::run;
+use email_newsletter::startup::run;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -6,4 +6,4 @@ async fn main() -> Result<(), std::io::Error> {
     run(listener)?.await?;
     Ok(())
 }
-// Page 73
+// Page 84
