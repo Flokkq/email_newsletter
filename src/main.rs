@@ -1,7 +1,7 @@
 use email_newsletter::configuration::{get_configuration, Settings};
 use email_newsletter::startup::run;
 use env_logger::Env;
-use sqlx::{Connection, PgPool};
+use sqlx::PgPool;
 use std::net::TcpListener;
 
 #[tokio::main]

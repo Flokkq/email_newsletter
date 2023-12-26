@@ -53,8 +53,6 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
-
-
       - name: Run tests
         run: cargo test --verbose
 
