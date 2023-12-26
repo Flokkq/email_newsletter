@@ -1,10 +1,13 @@
 use std::net::TcpListener;
+use env_logger::Env;
 use sqlx::{Connection, PgPool};
 use email_newsletter::startup::run;
 use email_newsletter::configuration::{get_configuration, Settings};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
     let configuration: Settings = get_configuration().expect("Failed to read configuration.");
     let connection_pool = PgPool::connect(
         &configuration.database.connection_string()
@@ -14,4 +17,4 @@ async fn main() -> Result<(), std::io::Error> {
     let listener = TcpListener::bind(address)?;
     run(listener, connection_pool)?.await
 }
-// 4 TELEMETRY
+// 4.5 Structured Logging
