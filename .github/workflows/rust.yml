@@ -33,7 +33,12 @@ jobs:
 
       - name: Cache SQLx CLI
         if: steps.cache.outputs.cache-hit != 'true'
-        run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
+        run: |
+          if ! command -v sqlx > /dev/null; then
+            cargo install sqlx-cli --no-default-features --features native-tls,postgres
+          else
+            echo "SQLx CLI already installed."
+          fi
 
       - name: Cache Clippy Output
         uses: actions/cache@v2
