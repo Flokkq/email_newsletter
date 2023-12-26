@@ -1,0 +1,22 @@
+name: Formatting and Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Formatting
+        run: |
+          rustup component add rustfmt
+          cargo fmt -- --check
+      - name: Check Linting
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings
