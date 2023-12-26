@@ -16,7 +16,7 @@ pub async fn subscribe(
 ) -> HttpResponse {
     let request_id = Uuid::new_v4();
     let request_span = tracing::info_span!(
-        "Adding a new subscriber",
+        "Adding a new subscribers",
         %request_id, subscriber_emaiL=%form.email, subscriber_name=%form.name
     );
     let _request_span_guard = request_span.enter();
