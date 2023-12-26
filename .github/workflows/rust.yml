@@ -16,6 +16,11 @@ jobs:
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
+
+      - name: Install SQLx CLI
+        run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
+      - name: Set up Database
+        run: bash scripts/init_db.sh
       - name: Build
         run: cargo build --verbose
       - name: Run tests
