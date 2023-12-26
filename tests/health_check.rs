@@ -1,15 +1,15 @@
-use log::error;
-use std::net::TcpListener;
 use actix_web::body::MessageBody;
+use email_newsletter::configuration::{get_configuration, DatabaseSettings};
+use email_newsletter::startup::run;
+use log::error;
 use serde::__private::ser::constrain;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
+use std::net::TcpListener;
 use uuid::Uuid;
-use email_newsletter::configuration::{DatabaseSettings, get_configuration};
-use email_newsletter::startup::run;
 
 pub struct TestApp {
     pub address: String,
-    pub db_pool: PgPool
+    pub db_pool: PgPool,
 }
 
 async fn spawn_app() -> TestApp {
@@ -21,8 +21,7 @@ async fn spawn_app() -> TestApp {
     configuration.database.database_name = Uuid::new_v4().to_string();
     let connection_pool = configure_database(&configuration.database).await;
 
-    let server = run(listener, connection_pool.clone())
-        .expect("Failed to bind address");
+    let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
     let _ = tokio::spawn(server);
 
     TestApp {
@@ -32,18 +31,23 @@ async fn spawn_app() -> TestApp {
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-    let mut connection = PgPool::connect(
-        &config.connection_string_without_db()
-    ).await.expect("Failed to connect to Postgres");
+    let mut connection = PgPool::connect(&config.connection_string_without_db())
+        .await
+        .expect("Failed to connect to Postgres");
 
-    connection.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
-        .await.expect("Failed to create Database");
+    connection
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .await
+        .expect("Failed to create Database");
 
     let connection_pool = PgPool::connect(&config.connection_string())
-        .await.expect("Failed to connect to Postgres");
+        .await
+        .expect("Failed to connect to Postgres");
 
     sqlx::migrate!("./migrations")
-        .run(&connection_pool).await.expect("Failed to migrate the database");
+        .run(&connection_pool)
+        .await
+        .expect("Failed to migrate the database");
 
     connection_pool
 }
