@@ -37,13 +37,22 @@ jobs:
           path: target/clippy-cache
           key: ${{ runner.os }}-clippy-${{ hashFiles('**/*.rs', '**/Cargo.lock') }}
 
+      - name: Cache Cargo Target
+        uses: actions/cache@v2
+        with:
+            path: target
+            key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Set up Database
         run: bash scripts/init_db.sh
 
       - name: Run tests
         run: cargo test --verbose
 
+
+
+      - name: Run tests
+        run: cargo test --verbose
+
       - name: Check Linting
-        run: |
-          rustup component add clippy
-          cargo clippy --target-dir=target/clippy-cache -- -D warnings
+        run: cargo clippy --target-dir=target -- -D warnings
