@@ -1,4 +1,4 @@
-name: email newsletter CI
+name: Build Test Lint
 
 on:
   push:
@@ -25,3 +25,7 @@ jobs:
         run: cargo build --verbose
       - name: Run tests
         run: cargo test --verbose
+      - name: Check Linting
+        run: |
+          rustup component add clippy
+          cargo clippy -- -D warnings

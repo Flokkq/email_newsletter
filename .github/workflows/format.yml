@@ -1,4 +1,4 @@
-name: Formatting and Lint
+name: Formatting
 
 on:
   push:
@@ -16,7 +16,3 @@ jobs:
         run: |
           rustup component add rustfmt
           cargo fmt -- --check
-      - name: Check Linting
-        run: |
-          rustup component add clippy
-          cargo clippy -- -D warnings
