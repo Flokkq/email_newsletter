@@ -20,6 +20,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache Rust Format
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            target/
+          key: ${{ runner.os }}-rustfmt-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rustfmt-
+
       - name: Check Formatting
         run: |
           rustup component add rustfmt
