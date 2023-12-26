@@ -53,8 +53,5 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
-      - name: Run tests
-        run: cargo test --verbose
-
       - name: Check Linting
         run: cargo clippy --target-dir=target -- -D warnings
