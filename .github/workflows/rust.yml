@@ -3,6 +3,10 @@ name: Build Test Lint
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - workflows
+      - migrations
+      - scripts
   pull_request:
     branches: [ main ]
 
