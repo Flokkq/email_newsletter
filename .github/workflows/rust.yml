@@ -12,8 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Database
+        run: ../scripts/init_db.sh
       - name: Install Rust
-        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+      - name: Check Formatting
+        run: |
+          rustup component add rustfmt
+          cargo fmt -- --check
       - name: Build
         run: cargo build --verbose
       - name: Run tests
