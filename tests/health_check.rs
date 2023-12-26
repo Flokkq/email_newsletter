@@ -2,9 +2,9 @@ use email_newsletter::configuration::{get_configuration, DatabaseSettings};
 use email_newsletter::startup::run;
 use email_newsletter::telemetry::{get_subscriber, init_subscriber};
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgPool};
 use std::net::TcpListener;
-use secrecy::ExposeSecret;
 use uuid::Uuid;
 
 static TRACING: Lazy<()> = Lazy::new(|| {
