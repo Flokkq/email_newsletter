@@ -9,6 +9,10 @@ on:
       - 'scripts/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'migrations/**'
+      - 'scripts/**'
 
 jobs:
   build:
