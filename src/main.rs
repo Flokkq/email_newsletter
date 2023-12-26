@@ -17,4 +17,4 @@ async fn main() -> Result<(), std::io::Error> {
     let listener = TcpListener::bind(address)?;
     run(listener, connection_pool)?.await
 }
-// 4.5 Structured Logging (I want to kms even more)
+// 4.5 Structured Logging (I want to kms even more [alot])
