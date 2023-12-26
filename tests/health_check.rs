@@ -3,7 +3,7 @@ use email_newsletter::startup::run;
 use email_newsletter::telemetry::{get_subscriber, init_subscriber};
 use once_cell::sync::Lazy;
 use secrecy::ExposeSecret;
-use sqlx::{Connection, Executor, PgPool};
+use sqlx::{Executor, PgPool};
 use std::net::TcpListener;
 use uuid::Uuid;
 
@@ -34,7 +34,7 @@ async fn spawn_app() -> TestApp {
 
     let mut configuration = get_configuration().expect("Failed to read configuration");
     configuration.database.database_name = Uuid::new_v4().to_string();
-    let connection_pool = configure_database(&configuration.database).await;
+    let connection_pool = configure_database(configuration.database).await;
 
     let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
     let _ = tokio::spawn(server);
@@ -45,8 +45,8 @@ async fn spawn_app() -> TestApp {
     }
 }
 
-pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
-    let mut connection = PgPool::connect(&config.connection_string_without_db().expose_secret())
+pub async fn configure_database(config: DatabaseSettings) -> PgPool {
+    let connection = PgPool::connect(config.connection_string_without_db().expose_secret())
         .await
         .expect("Failed to connect to Postgres");
 
@@ -55,7 +55,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to create Database");
 
-    let connection_pool = PgPool::connect(&config.connection_string().expose_secret())
+    let connection_pool = PgPool::connect(config.connection_string().expose_secret())
         .await
         .expect("Failed to connect to Postgres");
 
