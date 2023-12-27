@@ -7,8 +7,8 @@ on:
       - '.github/workflows/**'
       - 'migrations/**'
       - 'scripts/**'
-#    paths:
-#      - none
+  #    paths:
+  #      - none
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -51,8 +51,8 @@ jobs:
       - name: Cache Cargo Target
         uses: actions/cache@v2
         with:
-            path: target
-            key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+          path: target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Set up Database
         run: bash scripts/init_db.sh
@@ -62,3 +62,19 @@ jobs:
 
       - name: Check Linting
         run: cargo clippy --target-dir=target -- -D warnings
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ build, format ]
+
+    steps:
+      - name: Deploy to Raspberry Pi
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          script: |
+            cd /path/to/your/project
+            git pull
+            ./deploy_script.sh
