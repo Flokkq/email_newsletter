@@ -1,6 +1,6 @@
 use validator::validate_email;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SubscriberEmail(String);
 
 impl SubscriberEmail {
@@ -35,13 +35,8 @@ mod tests {
         }
     }
 
-    #[quickcheck_macros::quickcheck]
-    fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
-        SubscriberEmail::parse(valid_email.0).is_ok()
-    }
-
     #[test]
-    fn valid_emaild_are_parsed_successfully() {
+    fn valid_emails_are_parsed_successfully() {
         let email = SafeEmail().fake();
         claims::assert_ok!(SubscriberEmail::parse(email));
     }

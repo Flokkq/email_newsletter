@@ -1,5 +1,3 @@
-use std::f32::consts::E;
-
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
@@ -20,9 +18,12 @@ pub struct FormData {
         subscriber_name = % form.name
     )
 )]
-pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
+pub async fn subscribe(
+    form: web::Form<FormData>,
+    pool: web::Data<PgPool>,
+) -> HttpResponse {
     let new_subscriber = match form.0.try_into() {
-        Ok(form) => form, 
+        Ok(form) => form,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
 
@@ -32,15 +33,13 @@ pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> Ht
     }
 }
 
-// implementing TryForm allows us to use TryInto without implementing it
-// form.0.try_into() is the same as NewSubscriber.try_from(form.0)
 impl TryFrom<FormData> for NewSubscriber {
     type Error = String;
 
     fn try_from(value: FormData) -> Result<Self, Self::Error> {
         let name = SubscriberName::parse(value.name)?;
         let email = SubscriberEmail::parse(value.email)?;
-        Ok(NewSubscriber {email, name})       
+        Ok(NewSubscriber { email, name })
     }
 }
 
@@ -54,9 +53,9 @@ pub async fn insert_subscriber(
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
-    INSERT INTO subscriptions (id, email, name, subscribed_at)
-    VALUES ($1, $2, $3, $4)
-            "#,
+    INSERT INTO subscriptions (id, email, name, subscribed_at, status)
+    VALUES ($1, $2, $3, $4, 'confirmed')
+    "#,
         Uuid::new_v4(),
         new_subscriber.email.as_ref(),
         new_subscriber.name.as_ref(),
