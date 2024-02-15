@@ -29,6 +29,7 @@ uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 unicode-segmentation = "1"
 validator = "0.16"
+rand = { version = "0.8", features = ["std_rng"]}
 
 [dependencies.sqlx]
 version = "0.7"
@@ -54,3 +55,4 @@ quickcheck_macros = "0.9.1"
 fake = "~2.3"
 claims = "0.7"
 once_cell = "1"
+linkify = "0.10.0"
