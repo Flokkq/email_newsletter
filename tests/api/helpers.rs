@@ -39,7 +39,8 @@ pub struct TestApp {
     pub port: u16,
     pub db_pool: PgPool,
     pub email_server: MockServer,
-    test_user: TestUser,
+    pub test_user: TestUser,
+    pub api_client: reqwest::Client,
 }
 
 pub struct TestUser {
@@ -49,32 +50,6 @@ pub struct TestUser {
 }
 
 impl TestApp {
-    pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
-        reqwest::Client::new()
-            .post(&format!("{}/subscriptions", &self.address))
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .body(body)
-            .send()
-            .await
-            .expect("Failed to execute request.")
-    }
-
-    pub async fn post_newsletters(
-        &self,
-        body: serde_json::Value,
-    ) -> reqwest::Response {
-        reqwest::Client::new()
-            .post(&format!("{}/newsletters", self.address))
-            .basic_auth(
-                &self.test_user.username,
-                Some(&self.test_user.password),
-            )
-            .json(&body)
-            .send()
-            .await
-            .expect("Failed to execute request")
-    }
-
     pub fn get_confirmation_links(
         &self,
         email_request: &wiremock::Request,
@@ -96,9 +71,105 @@ impl TestApp {
             conformation_link
         };
 
-        let html = get_link(&body["HtmlBody"].as_str().unwrap());
-        let plain_text = get_link(&body["TextBody"].as_str().unwrap());
+        let html = get_link(body["HtmlBody"].as_str().unwrap());
+        let plain_text = get_link(body["TextBody"].as_str().unwrap());
         ConfirmationLinks { html, plain_text }
+    }
+
+    pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
+        self.api_client
+            .post(&format!("{}/subscriptions", &self.address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    pub async fn post_newsletters(
+        &self,
+        body: serde_json::Value,
+    ) -> reqwest::Response {
+        self.api_client
+            .post(&format!("{}/newsletters", self.address))
+            .basic_auth(
+                &self.test_user.username,
+                Some(&self.test_user.password),
+            )
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn post_login<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}/login", &self.address))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn get_login_html(&self) -> String {
+        self.api_client
+            .get(format!("{}/login", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request")
+            .text()
+            .await
+            .unwrap()
+    }
+
+    pub async fn get_admin_dashboard(&self) -> reqwest::Response {
+        self.api_client
+            .get(format!("{}/admin/dashboard", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn get_admin_dashboard_html(&self) -> String {
+        self.get_admin_dashboard().await.text().await.unwrap()
+    }
+
+    pub async fn get_change_password(&self) -> reqwest::Response {
+        self.api_client
+            .get(&format!("{}/admin/password", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn get_change_password_html(&self) -> String {
+        self.get_change_password().await.text().await.unwrap()
+    }
+
+    pub async fn post_change_password<Body>(
+        &self,
+        body: &Body,
+    ) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}/admin/password", &self.address))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn post_logout(&self) -> reqwest::Response {
+        self.api_client
+            .post(&format!("{}/admin/logout", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request")
     }
 }
 
@@ -135,6 +206,12 @@ impl TestUser {
     }
 }
 
+pub fn assert_is_redirect_to(response: &reqwest::Response, location: &str) {
+    dbg!(format!("Redirect to {}", location,));
+    assert_eq!(response.status().as_u16(), 303);
+    assert_eq!(response.headers().get("Location").unwrap(), location);
+}
+
 pub async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
     let email_server = MockServer::start().await;
@@ -150,16 +227,23 @@ pub async fn spawn_app() -> TestApp {
     let application = Application::build(configuration.clone())
         .await
         .expect("Failed to build application");
+
     let address = format!("http://127.0.0.1:{}", application.port());
     let application_port = application.port();
-    let _ = tokio::spawn(application.run_until_stopped());
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .cookie_store(true)
+        .build()
+        .unwrap();
 
+    let _ = tokio::spawn(application.run_until_stopped());
     let test_app = TestApp {
         address,
         port: application_port,
         db_pool: get_connection_pool(&configuration.database),
         email_server,
         test_user: TestUser::generate(),
+        api_client: client,
     };
 
     test_app.test_user.store(&test_app.db_pool).await;
