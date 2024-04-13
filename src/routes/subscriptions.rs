@@ -40,9 +40,9 @@ pub async fn subscribe(
         .await
         .map_err(SubscribeError::InsertSubscriberError)?;
 
-    let subscrtiption_token = generate_subscription_token();
+    let subscription_token = generate_subscription_token();
 
-    store_token(&mut transaction, subscriber_id, &subscrtiption_token).await?;
+    store_token(&mut transaction, subscriber_id, &subscription_token).await?;
     transaction
         .commit()
         .await
@@ -52,7 +52,7 @@ pub async fn subscribe(
         &email_client,
         new_subscriber,
         &base_url.0,
-        &subscrtiption_token,
+        &subscription_token,
     )
     .await
     .map_err(SubscribeError::SendEmailError)?;
@@ -241,7 +241,7 @@ impl std::error::Error for SubscribeError {
 }
 
 impl ResponseError for SubscribeError {
-    fn status_code(&self) -> reqwest::StatusCode {
+    fn status_code(&self) -> StatusCode {
         match self {
             SubscribeError::ValidationError(_) => StatusCode::BAD_REQUEST,
             SubscribeError::StoreTokenError(_)

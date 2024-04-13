@@ -30,7 +30,7 @@ pub async fn run(
     hmac_secret: Secret<String>,
     redis_uri: Secret<String>,
 ) -> Result<Server, anyhow::Error> {
-    let db_pool = web::Data::new(db_pool);
+    let db_pool = Data::new(db_pool);
     let email_client = Data::new(email_client);
     let base_url = Data::new(ApplicationBaseUrl(base_url));
 
@@ -72,8 +72,6 @@ pub async fn run(
     .run();
     Ok(server)
 }
-#[derive(Clone)]
-pub struct HmacSecret(pub Secret<String>);
 
 pub struct Application {
     port: u16,

@@ -4,8 +4,11 @@ use email_newsletter::telemetry::{get_subscriber, init_subscriber};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let subscriber =
-        get_subscriber("zero2prod".into(), "info".into(), std::io::stdout);
+    let subscriber = get_subscriber(
+        "email-newsletter".into(),
+        "info".into(),
+        std::io::stdout,
+    );
     init_subscriber(subscriber);
 
     let configuration =
@@ -14,4 +17,4 @@ async fn main() -> anyhow::Result<()> {
     application.run_until_stopped().await?;
     Ok(())
 }
-// 10 Securing Our API
+// 11 Securing Our API

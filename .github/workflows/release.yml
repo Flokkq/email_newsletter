@@ -11,6 +11,18 @@ on:
   #      - none
 
 jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache SQLx CLI
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          if ! command -v sqlx > /dev/null; then
+            cargo install sqlx-cli --no-default-features --features native-tls,postgres
+          else
+            echo "SQLx CLI already installed."
+          fi
+
   format:
     runs-on: ubuntu-latest
     steps:
