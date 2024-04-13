@@ -1,6 +1,6 @@
 # Email newsletter
 
-This repository contains code that I've written while following along with the book *Zero To Production In Rust* by [Luca Palmieri](https://github.com/LukeMathWalker) (also known as LukeMathWalker on GitHub). The content within this repository is based on the exercises and examples presented in the book.
+This repository contains code that I've written while following along with the book *Zero To Production In Rust* by [Luca Palmieri](https://github.com/LukeMathWalker). The content within this repository is based on the exercises and examples presented in the book.
 
 ## Disclaimer
 
