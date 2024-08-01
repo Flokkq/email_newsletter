@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ release ]
+    branches: [ prod ]
     paths-ignore:
       - '.github/workflows/**'
       - 'migrations/**'
